@@ -11,7 +11,7 @@ mongoose.connect(db, {
     useNewUrlParser: true
 }).then(() => console.log("called"))
 
-
+console.log(process.env.MODE)
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended : true}))
