@@ -1,7 +1,10 @@
 const User = require("../models/User")
-
+let users;
 const login = (req, res, next) => {
     const {email, password} = req.body
+
+    User.find({}).then(res => users = res)
+    console.log(users)
 
     User.findOne({'email' : email}).then(user => {
 
@@ -9,7 +12,7 @@ const login = (req, res, next) => {
 
         else if(!user.password === password) res.status(401).send({message : "Incorrect password"})
 
-        else res.status(200).send({message : "success"})
+        else res.status(200).send({userData : user})
 
     }).catch((e) => res.status(502).send({message : "error"}))
 }
@@ -24,7 +27,7 @@ const signUp =  (req, res) => {
     
             newUser.save().then(msg => {
 
-                res.status(200).send({message : "success"})
+                res.status(201).send({message : "success"})
 
             }).catch(e => res.status(502).send({message : "error"}))
 
