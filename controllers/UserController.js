@@ -48,7 +48,7 @@ const fetchMessages = async (req, res) => {
 
   try{
     const messages = await Message.find({ sender , receiver})
-
+    
     if(!messages) res.status(404).send({ message: "User not found" })
   
     else res.status(200).send({ messages })
@@ -58,9 +58,10 @@ const fetchMessages = async (req, res) => {
   }
 }
 const saveMessages = (req, res) => {
-  const {message, senderEmail, receiverEmail} = req.body
+  const {message, sender, receiver} = req.body
   try{
-    const newMessage = new Message({ message, senderEmail, receiverEmail })
+    const newMessage = new Message({ message, sender, receiver })
+    console.log(newMessage)
     newMessage.save().then(msg => res.status(201).send({ newMessage }))
   } catch(e) {
     res.status(502).send({ message: "error" })
