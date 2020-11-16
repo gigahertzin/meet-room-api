@@ -38,7 +38,7 @@ app.use(router);
 io.on("connection", (socket) => {
   console.log("Connected succesfully to the socket ...");
   var online = Object.keys(io.engine.clients);
-  console.log(online)
+  // console.log(online)
   // io.emit('status', JSON.stringify(online));
 
   // socket.on('disconnect', function(){
