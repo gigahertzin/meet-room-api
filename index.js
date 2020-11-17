@@ -55,7 +55,6 @@ io.on("connection", (socket) => {
   socket.on("sendMsg", data => {
     let {msgDetail} = data
     let receiverEmailDetail = users.find(user => user.email === msgDetail.receiver)
-    console.log(receiverEmailDetail)
     if(receiverEmailDetail !== undefined) io.to(receiverEmailDetail.id).emit("getMsg", {msgDetail})
   })
 

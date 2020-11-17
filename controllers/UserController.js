@@ -47,8 +47,7 @@ const fetchMessages = async (req, res) => {
   const {sender, receiver} = req.params
 
   try{
-    const messages = await Message.find({ sender , receiver})
-    
+    const messages = await Message.find({ $or:[ {sender, receiver}, {sender: receiver, receiver :sender} ]})
     if(!messages) res.status(404).send({ message: "User not found" })
   
     else res.status(200).send({ messages })
