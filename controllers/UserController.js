@@ -2,24 +2,18 @@ const User = require("../models/User");
 const Message = require("../models/Message");
 let users;
 const login = async (req, res) => {
-  const { email, password } = req.body
+  const { email, password } = req.body;
 
-  try{
+  try {
+    users = await User.find({});
+    let currentUser = users.find((user) => user.email === email);
 
-    users = await User.find({})
-    let currentUser = users.find(user => user.email === email)
-
-    if(!currentUser) res.status(404).send({ message: "User not found" })
-  
+    if (!currentUser) res.status(404).send({ message: "User not found" });
     else if (!currentUser.password === password)
       res.status(401).send({ message: "Incorrect password" });
-  
-    else res.status(200).send({ users })
-
-  } catch(e) {
-
-    res.status(502).send({ message: "error" })
-
+    else res.status(200).send({ users });
+  } catch (e) {
+    res.status(502).send({ message: "error" });
   }
 };
 
@@ -44,26 +38,29 @@ const signUp = (req, res) => {
 };
 
 const fetchMessages = async (req, res) => {
-  const {sender, receiver} = req.params
+  const { sender, receiver } = req.params;
 
-  try{
-    const messages = await Message.find({ $or:[ {sender, receiver}, {sender: receiver, receiver :sender} ]})
-    if(!messages) res.status(404).send({ message: "User not found" })
-  
-    else res.status(200).send({ messages })
-
-  } catch(e) {
-    res.status(502).send({ message: "error" })
+  try {
+    const messages = await Message.find({
+      $or: [
+        { sender, receiver },
+        { sender: receiver, receiver: sender },
+      ],
+    });
+    if (!messages) res.status(404).send({ message: "User not found" });
+    else res.status(200).send({ messages });
+  } catch (e) {
+    res.status(502).send({ message: "error" });
   }
-}
+};
 const saveMessages = (req, res) => {
-  const {message, sender, receiver} = req.body
-  try{
-    const newMessage = new Message({ message, sender, receiver })
-    newMessage.save().then(msg => res.status(201).send({ newMessage }))
-  } catch(e) {
-    res.status(502).send({ message: "error" })
+  const { message, sender, receiver } = req.body;
+  try {
+    const newMessage = new Message({ message, sender, receiver });
+    newMessage.save().then((msg) => res.status(201).send({ newMessage }));
+  } catch (e) {
+    res.status(502).send({ message: "error" });
   }
-}
+};
 
 module.exports = { login, signUp, fetchMessages, saveMessages };

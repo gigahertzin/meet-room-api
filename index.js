@@ -34,36 +34,38 @@ mongoose.connect(db, {
 });
 
 app.use(router);
-let users = []
+let users = [];
 io.on("connection", (socket) => {
-  console.log("Connected succesfully to the socket ...")
+  console.log("Connected succesfully to the socket ...");
 
   socket.on("new", (data, callback) => {
-    if(data.email===undefined || (data.email in users)) callback(false)
+    if (data.email === undefined || data.email in users) callback(false);
     else {
-      callback(true)
+      callback(true);
       users.push({
-        id : socket.id,
-        email : data.email
-      })
-      updateUsers()
+        id: socket.id,
+        email: data.email,
+      });
+      updateUsers();
     }
-  })
+  });
 
-  const updateUsers = () => io.sockets.emit("users", users)
+  const updateUsers = () => io.sockets.emit("users", users);
 
-  socket.on("sendMsg", data => {
-    let {msgDetail} = data
-    let receiverEmailDetail = users.find(user => user.email === msgDetail.receiver)
-    if(receiverEmailDetail !== undefined) io.to(receiverEmailDetail.id).emit("getMsg", {msgDetail})
-  })
+  socket.on("sendMsg", (data) => {
+    let { msgDetail } = data;
+    let receiverEmailDetail = users.find(
+      (user) => user.email === msgDetail.receiver
+    );
+    if (receiverEmailDetail !== undefined)
+      io.to(receiverEmailDetail.id).emit("getMsg", { msgDetail });
+  });
 
-  socket.on('disconnect', ()=>{
-    users = users.filter(user => user.id !== socket.id)
-    updateUsers()
-  })
-
-})
+  socket.on("disconnect", () => {
+    users = users.filter((user) => user.id !== socket.id);
+    updateUsers();
+  });
+});
 
 app.get("/", (req, res) => {
   res.send("Hello");
