@@ -41,29 +41,28 @@ io.on("connection", (socket) => {
   socket.on("new", (data, callback) => {
     if(data.email===undefined || (data.email in users)) callback(false)
     else {
+      callback(true)
       users.push({
         id : socket.id,
         email : data.email
       })
-      updateUsers(users)
-      callback(true)
+      updateUsers()
     }
   })
 
-  const updateUsers = () => io.emit("users", Object.keys(users))
+  const updateUsers = () => io.sockets.emit("users", users)
 
-  socket.on('getMsg', (data, callback) => {
-    let { msgDetail } = data
-    callback(true)
-    socket.broadcast.to(msgDetail.receiver).emit('sendMsg', msgDetail)
+  socket.on("sendMsg", data => {
+    let {msgDetail} = data
+    let receiverEmailDetail = users.find(user => user.email === msgDetail.receiver)
+    console.log(receiverEmailDetail)
+    if(receiverEmailDetail !== undefined) io.to(receiverEmailDetail.id).emit("getMsg", {msgDetail})
   })
 
   socket.on('disconnect', ()=>{
-    for(let i=0; i < users.length; i++){
-      if(users[i].id === socket.id) users.splice(i,1)
-    }
+    users = users.filter(user => user.id !== socket.id)
     updateUsers()
-});
+  })
 
 })
 

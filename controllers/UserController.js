@@ -61,7 +61,6 @@ const saveMessages = (req, res) => {
   const {message, sender, receiver} = req.body
   try{
     const newMessage = new Message({ message, sender, receiver })
-    console.log(newMessage)
     newMessage.save().then(msg => res.status(201).send({ newMessage }))
   } catch(e) {
     res.status(502).send({ message: "error" })
