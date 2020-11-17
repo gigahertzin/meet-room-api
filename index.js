@@ -34,27 +34,38 @@ mongoose.connect(db, {
 });
 
 app.use(router);
-
+let users = []
 io.on("connection", (socket) => {
-  console.log("Connected succesfully to the socket ...");
-  var online = Object.keys(io.engine.clients);
-  // console.log(online)
-  // io.emit('status', JSON.stringify(online));
+  console.log("Connected succesfully to the socket ...")
 
-  // socket.on('disconnect', function(){
-  //   var online = Object.keys(io.engine.clients);
-  //   io.emit('status', JSON.stringify(online));
-  // });
+  socket.on("new", (data, callback) => {
+    if(data.email===undefined || (data.email in users)) callback(false)
+    else {
+      users.push({
+        id : socket.id,
+        email : data.email
+      })
+      updateUsers(users)
+      callback(true)
+    }
+  })
 
-  socket.on("join", ({ email }) => {
-    // socket.brodcast.emit("message", "A user has connected")
-    console.log(email);
-  });
+  const updateUsers = () => io.emit("users", Object.keys(users))
 
-  socket.on("disconnect", () => {
-    console.log("User had left");
-  });
+  socket.on('getMsg', (data, callback) => {
+    let { msgDetail } = data
+    callback(true)
+    socket.broadcast.to(msgDetail.receiver).emit('sendMsg', msgDetail)
+  })
+
+  socket.on('disconnect', ()=>{
+    for(let i=0; i < users.length; i++){
+      if(users[i].id === socket.id) users.splice(i,1)
+    }
+    updateUsers()
 });
+
+})
 
 app.get("/", (req, res) => {
   res.send("Hello");
