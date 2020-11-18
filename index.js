@@ -41,16 +41,17 @@ io.on("connection", (socket) => {
   socket.on("new", (data, callback) => {
     if (data.email === undefined || data.email in users) callback(false);
     else {
-      callback(true);
+      callback(true)
       users.push({
         id: socket.id,
         email: data.email,
-      });
-      updateUsers();
+      })
+      console.log(users)
+      updateUsers()
     }
   });
 
-  const updateUsers = () => io.sockets.emit("users", users);
+  const updateUsers = () => io.sockets.emit("users", users)
 
   socket.on("sendMsg", (data) => {
     let { msgDetail } = data;
@@ -59,11 +60,20 @@ io.on("connection", (socket) => {
     );
     if (receiverEmailDetail !== undefined)
       io.to(receiverEmailDetail.id).emit("getMsg", { msgDetail });
-  });
+  })
+  
+  socket.on("logout", (data, callback) => {
+    if(data !== undefined) {
+      callback(true)
+      users = users.filter((user) => user.id !== socket.id)
+      updateUsers()
+    } else callback(false)
+  })
 
   socket.on("disconnect", () => {
     users = users.filter((user) => user.id !== socket.id);
-    updateUsers();
+    console.log(users)
+    updateUsers()
   });
 });
 
