@@ -46,7 +46,6 @@ io.on("connection", (socket) => {
         id: socket.id,
         email: data.email,
       })
-      console.log(users)
       updateUsers()
     }
   });
@@ -72,7 +71,6 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     users = users.filter((user) => user.id !== socket.id);
-    console.log(users)
     updateUsers()
   });
 });
