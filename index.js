@@ -39,7 +39,9 @@ io.on("connection", (socket) => {
   console.log("Connected succesfully to the socket ...");
 
   socket.on("new", (data, callback) => {
-    if (data.email === undefined || data.email in users) callback(false);
+    console.log(data, users)
+    let found = users.find(user => user.email == data.email)
+    if (data.email === undefined || found) callback(false);
     else {
       callback(true)
       users.push({
@@ -48,10 +50,12 @@ io.on("connection", (socket) => {
       })
       updateUsers()
     }
-  });
+  })
 
-  const updateUsers = () => io.sockets.emit("users", users)
-
+  const updateUsers = () => {
+    io.sockets.emit("users", users)
+    console.log(users)
+  }
   socket.on("sendMsg", (data) => {
     let { msgDetail } = data;
     let receiverEmailDetail = users.find(
@@ -64,13 +68,13 @@ io.on("connection", (socket) => {
   socket.on("logout", (data, callback) => {
     if(data !== undefined) {
       callback(true)
-      users = users.filter((user) => user.id !== socket.id)
+      users = users.filter((user) => user.email !== data.email)
       updateUsers()
     } else callback(false)
   })
 
   socket.on("disconnect", () => {
-    users = users.filter((user) => user.id !== socket.id);
+    users = users.filter((user) => user.id !== socket.id)
     updateUsers()
   });
 });
